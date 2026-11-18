@@ -107,6 +107,20 @@ esterno: il codice gira o non gira, non si discute.
 
 ---
 
+---
+
+## Evoluzione in produzione ([marina.sudowai.com](https://marina.sudowai.com))
+
+Oltre al nucleo di decomposizione atomica, MARINA gira come plancia web e sistema operativo di orchestra locale (`marina_web`, porta `:8146`):
+
+- **Plancia live via SSE (`app.py`)** — instradamento attraverso `bruno_gate.py` su corsie dedicate (`VELOCE`, `CODICE`, `COMPLESSA`) con lock atomici anti-collisione.
+- **Finestra di contesto unificata (`marina_ctx.py`)** — singolo valore di `NUM_CTX` condiviso fra plancia, gate, watchdog Ollama e assistente, eliminando ricaricamenti completi da ~69 secondi tra chiamate diverse.
+- **Gestione Squadra & VRAM (`marina_squadra.py` · `/squadra`, `/api/squadra`)** — monitora in tempo reale i modelli caricati su Ollama (`/api/tags`), decide cosa resta bloccato in GPU e cosa viene scaricato.
+- **MARINA Casa, Studio & Multimedia (`marina_casa.py`, `marina_studio.py`, `marina_musica_tv.py`, `marina_dispositivi.py`)** — interfaccia vocale locale (`"ok Marina"` su Android), controllo TV/dispositivi domestici e musica in locale, con supporto visione (`minicpm-v:latest`) e modello principale `gemma4-heretic:12b` su smistatore GPU/CPU.
+
+### Collegamento con l'hardware: Progetto Interposer
+Quando il decompositore sale da 12B verso modelli 30B o 120B con contesto ampio, il collo di bottiglia diventa la VRAM fisica della scheda video. Per questo portiamo avanti in parallelo **[Interposer](https://interposer.sudowai.com)**: espansione fisica della memoria VRAM su GPU usate per far girare anche i modelli decompositori più grandi interamente in locale.
+
 ## Perché in locale
 
 Tutto gira su una flotta di PC di casa — nessuna chiamata a servizi esterni, nessun dato che
@@ -118,6 +132,8 @@ Filoni collegati:
   modello migliore": 40 LLM locali su oltre 2000 compiti reali.
 - [agent-scaffolding-benchmark](https://github.com/alessiom18/agent-scaffolding-benchmark) —
   l'impalcatura non è neutra: lo stesso modello dentro agenti diversi vince o crolla.
+- ⚡ **[Interposer](https://interposer.sudowai.com)** — ricerca hardware per espandere la VRAM delle schede usate fino a 64–128 GB (e sbloccare 30B–120B in locale).
+- 🌐 **[SudoWAI](https://sudowai.com)** — casa base dell'ecosistema hardware, AI e software self-hosted (Livorno).
 
 MARINA è il passo successivo: **non il modello migliore, non l'agente migliore — il
 sistema.** Tanti pezzi deboli, un metodo che li fa lavorare insieme, e la verità tenuta da
